@@ -17,8 +17,14 @@ public class Book {
 
     private int numberPages;
 
-    @OneToMany(mappedBy = "bookId", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Bookmark> bookmarkList = new ArrayList<>();
+//    @OneToMany(mappedBy = "bookId", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JoinColumn(name = "bookmark_list")
+//    private List<Bookmark> bookmarkList = new ArrayList<>();
+    @OneToOne(mappedBy = "bookId")
+    private Bookmark bookmark;
+
+//    @OneToOne(mappedBy = "address")
+//    private User user;
 
     public Book(){
     }
@@ -52,20 +58,25 @@ public class Book {
         this.numberPages = numberPages;
     }
 
-    public List<Bookmark> getBookmarkList() {
-        return bookmarkList;
+//    public List<Bookmark> getBookmarkList() {
+//        return bookmarkList;
+//    }
+//
+//    public void setBookmarkList(List<Bookmark> bookmarkList) {
+//        this.bookmarkList = bookmarkList;
+//    }
+
+
+    public Bookmark getBookmark() {
+        return bookmark;
     }
 
-    public void setBookmarkList(List<Bookmark> bookmarkList) {
-        this.bookmarkList = bookmarkList;
+    public void setBookmark(Bookmark bookmark) {
+        this.bookmark = bookmark;
     }
 
     @Override
     public String toString(){
-        StringBuilder result = new StringBuilder(id + bookName);
-        for (Bookmark bookmark : bookmarkList){
-            result.append(bookmark.getReaderId().getReaderName());
-        }
-        return result.toString();
+        return bookName + "-" + numberPages;
     }
 }
