@@ -1,9 +1,10 @@
 package com.example.bookstorage.models;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table
@@ -13,18 +14,16 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
+    @NotNull
+    @Size(max = 30, message = "name must be between 1 and 30 characters")
     private String bookName;
 
+    @Min(value = 1, message = "minimum number of pages 1")
+    @Max(value = 1500, message = "maximum number of pages 1500")
     private int numberPages;
 
-//    @OneToMany(mappedBy = "bookId", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-//    @JoinColumn(name = "bookmark_list")
-//    private List<Bookmark> bookmarkList = new ArrayList<>();
     @OneToOne(mappedBy = "bookId")
     private Bookmark bookmark;
-
-//    @OneToOne(mappedBy = "address")
-//    private User user;
 
     public Book(){
     }
@@ -57,15 +56,6 @@ public class Book {
     public void setNumberPages(int numberPages) {
         this.numberPages = numberPages;
     }
-
-//    public List<Bookmark> getBookmarkList() {
-//        return bookmarkList;
-//    }
-//
-//    public void setBookmarkList(List<Bookmark> bookmarkList) {
-//        this.bookmarkList = bookmarkList;
-//    }
-
 
     public Bookmark getBookmark() {
         return bookmark;

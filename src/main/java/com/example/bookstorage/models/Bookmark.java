@@ -12,17 +12,10 @@ public class Bookmark {
 
     private int bookmarkPage;
 
-//    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-//    @JoinColumn(name = "book_id")
-//    private Book bookId;
-
     @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name = "reader_id")
     private Reader readerId;
 
-//    @OneToOne(cascade = CascadeType.ALL)
-//    @JoinColumn(name = "address_id", referencedColumnName = "id")
-//    private Address address;
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "book_id")
     private Book bookId;

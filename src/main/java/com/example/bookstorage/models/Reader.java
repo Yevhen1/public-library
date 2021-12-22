@@ -1,16 +1,21 @@
 package com.example.bookstorage.models;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table
 public class Reader {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
+    @NotNull
+    @Size(min = 2, max = 15, message = "name must be between 2 and 15 characters")
     private String readerName;
 
     @OneToMany(mappedBy = "readerId", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)

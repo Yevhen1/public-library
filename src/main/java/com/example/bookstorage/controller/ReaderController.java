@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.ValidationException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +31,7 @@ public class ReaderController {
 
     //    http://localhost:8080/reader/
     @PostMapping("/reader")
-    public ResponseEntity<Reader> createReader(@RequestBody Reader reader){
+    public ResponseEntity<Reader> createReader(@Valid @RequestBody Reader reader){
         try {
             for (Reader readerCount : readerRepository.findAll()){
                 if (readerCount.getReaderName().equals(reader.getReaderName())){
@@ -107,27 +109,39 @@ public class ReaderController {
                                                   @PathVariable("bookmarkPage") int bookmarkPage){
         try {
             Optional<Reader> reader = readerRepository.findById(readerId);
-            if (reader.isPresent()){
-                for (Bookmark bookmark : reader.get().getBookmarkReaderList()){
-                    if (bookmark.getBookId().getBookName().equals(bookName)){
+            if (reader.isPresent()) {
+                for (Bookmark bookmark : reader.get().getBookmarkReaderList()) {
+                    if (bookmark.getBookId().getBookName().equals(bookName) &&
+                            isValidNumberPages(bookmark, bookmarkPage)) {
                         bookmark.setBookmarkPage(bookmarkPage);
                     }
                 }
             }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.OK);
+        }catch (ValidationException validationException){
+            return new ResponseEntity<>(HttpStatus.valueOf("NOT VALID BOOKMARK"));
         }catch (Exception e){
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    private boolean isValidNumberPages(Bookmark bookmark, int bookmarkPage) throws ValidationException{
+        if (bookmark.getBookId().getNumberPages() <= bookmarkPage){
+            return true;
+        }
+        throw  new ValidationException();
+    }
+
 
     @GetMapping("/getAllBooks/{readerId}")
-    public ResponseEntity<List<String>> getAllBook(@PathVariable("readerId") int readerId){
-        List<String> resultBook = new ArrayList<String>();
+    public ResponseEntity<String> getAllBook(@PathVariable("readerId") int readerId){
+//        List<String> resultBook = new ArrayList<String>();
+        String resultBook = "";
         Optional<Reader> reader = readerRepository.findById(readerId);
         if (reader.isPresent()){
             for (Bookmark bookmark : reader.get().getBookmarkReaderList()){
-                resultBook.add(bookmark.getBookId().toString());
+//                resultBook.add(bookmark.getBookId().toString());
+                resultBook += bookmark.getBookId().toString() + " ";
             }
             return new ResponseEntity<>(resultBook, HttpStatus.OK);
         }
@@ -162,5 +176,4 @@ public class ReaderController {
         }
         return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
-
 }
