@@ -6,6 +6,7 @@ import com.example.bookstorage.models.Reader;
 import com.example.bookstorage.repository.BookRepository;
 import com.example.bookstorage.repository.BookmarkRepository;
 import com.example.bookstorage.repository.ReaderRepository;
+import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,11 +32,11 @@ public class ReaderController {
 
     //    http://localhost:8080/reader/
     @PostMapping("/reader")
-    public ResponseEntity<Reader> createReader(@Valid @RequestBody Reader reader){
+    public ResponseEntity<?> createReader(@Valid @RequestBody Reader reader){
         try {
             for (Reader readerCount : readerRepository.findAll()){
                 if (readerCount.getReaderName().equals(reader.getReaderName())){
-                    return new ResponseEntity<>(readerCount , HttpStatus.OK);
+                    return new ResponseEntity<>(readerCount, HttpStatus.OK);
                 }
             }
             Reader readerCreate = readerRepository.save(new Reader(reader.getReaderName()));
@@ -82,8 +83,8 @@ public class ReaderController {
     @PostMapping("/addBook/{readerId}")
     public ResponseEntity<HttpStatus> addBook(@PathVariable("readerId") int readerId, @RequestBody Book requestBook){
         try {
-            Book bookCreate = bookRepository.save(new Book(requestBook.getBookName(), requestBook.getNumberPages()));
-            Bookmark bookmarkCreate = bookmarkRepository.save(new Bookmark());
+            Book bookCreate = new Book(requestBook.getBookName(), requestBook.getNumberPages());
+            Bookmark bookmarkCreate = new Bookmark();
 
             bookCreate.setBookmark(bookmarkCreate);
             bookmarkCreate.setBookId(bookCreate);
@@ -94,6 +95,8 @@ public class ReaderController {
                 Reader updateReader = reader.get();
                 updateReader.getBookmarkReaderList().add(bookmarkCreate);
                 bookmarkCreate.setReaderId(updateReader);
+                bookmarkRepository.save(bookmarkCreate);
+                bookRepository.save(bookCreate);
             }
 
             return new ResponseEntity<>(HttpStatus.OK);
@@ -103,7 +106,7 @@ public class ReaderController {
     }
 
 
-    @PutMapping("/setBookMark/{readerId}/{bookName}/{bookmarkPage}")
+    @GetMapping("/setBookMark/{readerId}/{bookName}/{bookmarkPage}")
     public ResponseEntity<HttpStatus> setBookMark(@PathVariable("readerId") int readerId,
                                                   @PathVariable("bookName")String bookName,
                                                   @PathVariable("bookmarkPage") int bookmarkPage){
@@ -114,6 +117,7 @@ public class ReaderController {
                     if (bookmark.getBookId().getBookName().equals(bookName) &&
                             isValidNumberPages(bookmark, bookmarkPage)) {
                         bookmark.setBookmarkPage(bookmarkPage);
+                        bookmarkRepository.save(bookmark);
                     }
                 }
             }
@@ -125,8 +129,9 @@ public class ReaderController {
         }
     }
 
+
     private boolean isValidNumberPages(Bookmark bookmark, int bookmarkPage) throws ValidationException{
-        if (bookmark.getBookId().getNumberPages() <= bookmarkPage){
+        if (bookmark.getBookId().getNumberPages() >= bookmarkPage){
             return true;
         }
         throw  new ValidationException();
@@ -135,12 +140,10 @@ public class ReaderController {
 
     @GetMapping("/getAllBooks/{readerId}")
     public ResponseEntity<String> getAllBook(@PathVariable("readerId") int readerId){
-//        List<String> resultBook = new ArrayList<String>();
         String resultBook = "";
         Optional<Reader> reader = readerRepository.findById(readerId);
         if (reader.isPresent()){
             for (Bookmark bookmark : reader.get().getBookmarkReaderList()){
-//                resultBook.add(bookmark.getBookId().toString());
                 resultBook += bookmark.getBookId().toString() + " ";
             }
             return new ResponseEntity<>(resultBook, HttpStatus.OK);

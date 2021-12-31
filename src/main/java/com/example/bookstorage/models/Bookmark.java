@@ -57,6 +57,7 @@ public class Bookmark {
 
     @Override
     public String toString(){
-        return bookmarkPage + bookId.getBookName() + bookId.getNumberPages() + readerId.getReaderName();
+//        return bookmarkPage + bookId.getBookName() + bookId.getNumberPages() + readerId.getReaderName();
+        return String.valueOf(bookmarkPage);
     }
 }

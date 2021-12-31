@@ -1,5 +1,7 @@
 package com.example.bookstorage.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -19,6 +21,7 @@ public class Reader {
     private String readerName;
 
     @OneToMany(mappedBy = "readerId", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<Bookmark> bookmarkReaderList = new ArrayList<>();
 
     public Reader(){
